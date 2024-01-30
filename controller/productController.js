@@ -73,7 +73,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
 const getProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
-    const product = await Product.findById(id).populate("wishlist");
+    const product = await Product.findById(id);
     res.json(product);
   } catch (error) {
     throw new Error(error);
