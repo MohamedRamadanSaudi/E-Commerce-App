@@ -403,18 +403,30 @@ const applyCouponCode = asyncHandler(async (req, res) => {
     throw new Error("Invalid Coupon");
   }
   const user = await User.findOne({ _id });
-  let { cartTotal } = await Cart.findOne({
-    orderby: user._id,
-  }).populate("products.product");
+  const cart = await Cart.findOne({ orderby: user._id }).populate(
+    "products.product"
+  );
+
+  if (!cart) {
+    throw new Error("Cart not found");
+  }
+
+  if (!cart.cartTotal) {
+    throw new Error("Cart total is null");
+  }
+
+  let { cartTotal } = cart;
   let totalAfterDiscount = (
     cartTotal -
     (cartTotal * validCoupon.discount) / 100
   ).toFixed(2);
+
   await Cart.findOneAndUpdate(
     { orderby: user._id },
     { totalAfterDiscount },
     { new: true }
   );
+
   res.json({ message: "Successfully applied coupon", totalAfterDiscount });
 });
 
